@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <title>{% block title %}FLIGHTS{% endblock %}</title>
+</head>
+<header>
+  <div class="logo">
+    <a href="/">
+      <img src="/static/flight/plane_logo.png" width="60" height="60px"/>
+    </a>
+  </div>
+</header>
+<body>
+{% block sidebar %}
+    <div id="sidebar">
+        <a href="{% url 'about' %}">About us</a>
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'logout' %}">Logout</a>
+        <a href="{% url 'signup' %}">Sign Up</a>
+    </div>
+{% endblock %}
+    <div id="content">
+        {% block content %}{% endblock %}
+    </div>
+    {% if user.is_authenticated %}
+        <p>Hi, {{ user.username }}!</p>
+    {% else %}
+        <p>You are not logged in.</p>
+      {% endif %}
+</body>
