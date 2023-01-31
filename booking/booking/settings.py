@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'booking.wsgi.application'
 DATABASES = {
     'default': {
          'ENGINE': 'django.db.backends.mysql',
-         'NAME': 'info',
+         'NAME': 'flight_booking',
          'USER': 'root',
          'PASSWORD': '1234',
          'HOST': 'localhost',
@@ -112,11 +112,17 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Minsk'
 
 USE_I18N = True
 
 USE_TZ = True
+
+DATE_INPUT_FORMATS = ['%m/%d/%Y']
+
+
+
+
 
 
 # Static files (CSS, JavaScript, Images)

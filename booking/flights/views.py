@@ -1,8 +1,17 @@
-from django.shortcuts import render, redirect
+import json
+
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .forms import UserForm, LoginForm, SearchForm
+from djoser.conf import User
+
+from .forms import UserForm, LoginForm, SearchForm, OrderForm, UserUpdateForm, ProfileUpdateForm
+# from .filters import FilterTickets
 from django.contrib import messages
+# from cart.cart import Cart
+
+from .models import Ticket, Profile, OrderItem, Order, Airport, City
 
 
 def index(request):
@@ -59,25 +68,102 @@ def profile_page(request):
     return render(request, 'profile.html') # сигналы для того чтобы профиль создавался автоматически
 
 
-def ticket_search(request):
-    if request.method == "POST":
-        form = SearchForm(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            search_data = authenticate(departure_city=data['form.dep_city'], departure_airport=data['form.dep_airport'],
-                                       destination_city=data['form.dest_city'], destination_airport=data['form.dest_airport'],
-                                       departure_date=data['form.dep_date'], arrival_date=data['form.arr_date'], price=data['form.price'])
-            if search_data is not None:
-                render(request, search_data)
-                return redirect('home')
-            else:
-                return redirect('login-me')
+@login_required(login_url='/log-in')
+def edit_profile(request):
+    if request.method == 'POST':
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        if u_form.is_valid() and p_form.is_valid():
+            u_form.save()
+            p_form.save()
+            messages.success(request, f'Ваш профиль успешно обновлен.')
+            return redirect('profile')
     else:
-        form = SearchForm()
-        context = {
-            'form': form,
-            }
-        return render(request, 'ticket_search.html', context)
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=request.user.profile)
+
+    context = {
+        'u_form': u_form,
+        'p_form': p_form
+    }
+
+    return render(request, 'profile_edit.html', context)
 
 
+@login_required(login_url='/log-in')
+def ticket_search(request):
+    # queryset = Ticket.objects.all()
+    queryset1 = Ticket.objects.filter(is_available=True)
+    queryset2 = Ticket.objects.filter(is_available=True)
+    queryset3 = Ticket.objects.filter(is_available=True)
+    queryset4 = Ticket.objects.filter(is_available=True)
+    queryset5 = Ticket.objects.filter(is_available=True)
+    queryset6 = Ticket.objects.filter(is_available=True)
+    queryset7 = Ticket.objects.filter(is_available=True)
+    form = SearchForm(request.GET)
+    if form.is_valid():
+        if form.cleaned_data['departure_city']:
+            queryset1 = Ticket.objects.filter(departure_city=form.cleaned_data['departure_city'])
+        if form.cleaned_data['departure_airport']:
+            queryset2 = Ticket.objects.filter(departure_airport=form.cleaned_data['departure_airport'])
+        if form.cleaned_data['destination_city']:
+            queryset3 = Ticket.objects.filter(destination_city=form.cleaned_data['destination_city'])
+        if form.cleaned_data['destination_airport']:
+            queryset4 = Ticket.objects.filter(destination_airport=form.cleaned_data['destination_airport'])
+        if form.cleaned_data['departure_date']:
+            queryset5 = Ticket.objects.filter(departure_date=form.cleaned_data['departure_date'])
+        if form.cleaned_data['arrival_date']:
+            queryset6 = Ticket.objects.filter(arrival_date=form.cleaned_data['arrival_date'])
+        if form.cleaned_data['price'] or form.cleaned_data['price'] == 0:
+            queryset7 = Ticket.objects.filter(price__lte=form.cleaned_data['price'])
+    queryset = queryset1 & queryset2 & queryset3 & queryset4 & queryset5 & queryset6 & queryset7
+    return render(request, 'ticket_search.html', {"queryset": queryset, "form": form})
 
+
+def ticket_booking(request, id=None):
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            order = form.save(commit=False)
+            order.user = request.user
+            ticket = Ticket.objects.get(pk=id)
+            order.ticket = ticket
+            order.save()
+            instance = Ticket.objects.get(pk=id)
+            instance.user = request.user
+            instance.is_available = False
+            instance.save()
+            return render(request, 'ticket_booked.html', {"order": order})
+        else:
+            form = OrderForm()
+            return render(request, 'ticket_booking.html', {'form': form})
+    person_instance = User.objects.get(profile=request.user.profile)
+    form = OrderForm(instance=person_instance)
+    return render(request, 'ticket_booking.html', {'form': form})
+
+    # filters = FilterTickets(request.GET, queryset=queryset)
+    #
+    # context = {'filters': filters}
+    # return render(request, 'ticket_search.html', {"tickets": queryset, "form": form})
+
+
+def load_airports(request):
+    city_airport_id = request.GET.get('city_airport_id')
+    airports = Airport.objects.filter(city_airport_id=city_airport_id).all()
+    return render(request, 'dropdown_list.html', {'airports': airports})
+
+
+def booked_tickets(request):
+    orders = Order.objects.all().filter(user=request.user)
+    return render(request, 'booked_tickets.html', {"orders": orders})
+
+
+def delete(request, pk):
+    order = Order.objects.get(id=pk)
+    # instance = Ticket.objects.get(id=pk)
+    if request.method == "POST":
+        # instance.is_available = True
+        # instance.save()
+        order.delete()
+        return redirect('booked')
+    return render(request, 'delete_order.html', {'item': order})

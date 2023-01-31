@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if orders %}
+{% for order in orders %}
+ <div class="alert alert-secondary" align="center" style="background: white">
+   {{ order.ticket }}
+     <a class="btn btn-primary" style="background-color: #0d5528; --bs-btn-border-color: white; --bs-btn-hover-border-color:green; border-radius: 50px" href="{% url 'delete' order.id %}">Delete</a>
+ </div>
+{% endfor %}
+{% else %}
+ <p align="center" style="font-size: 50px; padding: 10px; margin: 10px">Sorry :(</p>
+<p align="center" style="font-size: 25px">There is no tickets yet!</p>
+   <div class="button" align="center">
+    <a href="{% url 'search' %}" type="button" class="btn btn-primary" style="background-color: #0d5528; --bs-btn-border-color: white; --bs-btn-hover-border-color:green; border-radius: 50px">BUY TICKETS</a>
+   </div>
+{% endif %}
+{% endblock %}

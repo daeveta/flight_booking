@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<p align="center" style="font-weight: bold; position: relative; top:20px">Are you sure you want to cancel ticket?</p>
+
+<div class="container">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-5 text-center justify-content-center ">
+              <form method="POST" align="center" >
+                {% csrf_token %}
+                <a href="{% url 'booked' %}" type="button" class="btn btn-outline-primary me-2" style="background-color: white; --bs-btn-border-color: #0d5528; --bs-btn-color: #0d5528; --bs-btn-hover-border-color:green; border-radius: 50px">Cancel</a>
+                <input type="submit" value="Yes, I'm sure" class="btn btn-primary" style="background-color: #0d5528; --bs-btn-border-color: white; --bs-btn-hover-border-color:green; border-radius: 50px">
+              </form>
+            </div>
+        </div>
+</div>
+{% endblock %}

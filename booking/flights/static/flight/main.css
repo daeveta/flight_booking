@@ -1,1 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+
+nav main {
+text-align: center;
+}
+
+form {
+    width: 450px;
+    padding: 31px;
+    border-radius: 20px;
+    box-shadow: 0 4px 16px #ccc;
+    background: white;
+
+}
+#form-sign {
+    width: 600px;
+    padding: 15px;
+    border-radius: 20px;
+    box-shadow: 0 4px 16px #ccc;
+    top: 10%;
+    bottom: 20%;
+    border-radius: 50px;
+}
+
+ul {
+    width: 450px;
+}
+
+.container {
+    padding: 20px;
+    top: 10%;
+    bottom: 20%;
+
+}
+.container2 {
+    padding: 20px;
+    top: 70%;
+    bottom: 20%;
+}
+
+.alert {
+    padding: 20px;
+    width:40%;
+    top: 50%;
+    left: 30%;
+}
+
+.rounded-circle {
+  width: 300px;
+  height: 300px;
+}
+
+.profile-image img {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.profile-image {
+  width: auto;
+  height: 100%;
+  margin: 0 auto;
+}
+
+.btn-primary {
+    background-color: #0d5528;
+}
+
+h3 {
+    padding: 5px;
+    margin: 5px;
+}
+
+body {
+    background: #f0fff0;
+    font-family: 'Poppins', sans-serif;
+}
+
+.btn btn-outline-info {
+    padding: 10px;
+}
+
+label {
+    color: #0d5528;
+    font-weight: bold;
+}
+
+h1 {
+    font-weight: bold;
 }
