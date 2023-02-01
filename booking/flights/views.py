@@ -28,8 +28,8 @@ def sign_up(request):
         form = UserForm(request.POST)
         if form.is_valid():
             form.save()
-            # user = form.cleaned_data.get('first_name')
-            # messages.success(request, 'Congratulations!' + user)
+            user = form.cleaned_data.get('first_name')
+            messages.success(request, 'Congratulations!' + user)
             return redirect('login')
     else:
         form = UserForm()
@@ -90,36 +90,28 @@ def edit_profile(request):
     return render(request, 'profile_edit.html', context)
 
 
-@login_required(login_url='/log-in')
 def ticket_search(request):
-    # queryset = Ticket.objects.all()
-    queryset1 = Ticket.objects.filter(is_available=True)
-    queryset2 = Ticket.objects.filter(is_available=True)
-    queryset3 = Ticket.objects.filter(is_available=True)
-    queryset4 = Ticket.objects.filter(is_available=True)
-    queryset5 = Ticket.objects.filter(is_available=True)
-    queryset6 = Ticket.objects.filter(is_available=True)
-    queryset7 = Ticket.objects.filter(is_available=True)
+    queryset = Ticket.objects.filter(is_available=True)
     form = SearchForm(request.GET)
     if form.is_valid():
         if form.cleaned_data['departure_city']:
-            queryset1 = Ticket.objects.filter(departure_city=form.cleaned_data['departure_city'])
+            queryset = queryset.filter(departure_city=form.cleaned_data['departure_city'])
         if form.cleaned_data['departure_airport']:
-            queryset2 = Ticket.objects.filter(departure_airport=form.cleaned_data['departure_airport'])
+            queryset = queryset.filter(departure_airport=form.cleaned_data['departure_airport'])
         if form.cleaned_data['destination_city']:
-            queryset3 = Ticket.objects.filter(destination_city=form.cleaned_data['destination_city'])
+            queryset = queryset.filter(destination_city=form.cleaned_data['destination_city'])
         if form.cleaned_data['destination_airport']:
-            queryset4 = Ticket.objects.filter(destination_airport=form.cleaned_data['destination_airport'])
+            queryset = queryset.filter(destination_airport=form.cleaned_data['destination_airport'])
         if form.cleaned_data['departure_date']:
-            queryset5 = Ticket.objects.filter(departure_date=form.cleaned_data['departure_date'])
+            queryset = queryset.filter(departure_date=form.cleaned_data['departure_date'])
         if form.cleaned_data['arrival_date']:
-            queryset6 = Ticket.objects.filter(arrival_date=form.cleaned_data['arrival_date'])
+            queryset = queryset.filter(arrival_date=form.cleaned_data['arrival_date'])
         if form.cleaned_data['price'] or form.cleaned_data['price'] == 0:
-            queryset7 = Ticket.objects.filter(price__lte=form.cleaned_data['price'])
-    queryset = queryset1 & queryset2 & queryset3 & queryset4 & queryset5 & queryset6 & queryset7
+            queryset = queryset.filter(price__lte=form.cleaned_data['price'])
     return render(request, 'ticket_search.html', {"queryset": queryset, "form": form})
 
 
+@login_required(login_url='/log-in')
 def ticket_booking(request, id=None):
     if request.method == 'POST':
         form = OrderForm(request.POST)
@@ -129,10 +121,9 @@ def ticket_booking(request, id=None):
             ticket = Ticket.objects.get(pk=id)
             order.ticket = ticket
             order.save()
-            instance = Ticket.objects.get(pk=id)
-            instance.user = request.user
-            instance.is_available = False
-            instance.save()
+            ticket.user = request.user
+            ticket.is_available = False
+            ticket.save()
             return render(request, 'ticket_booked.html', {"order": order})
         else:
             form = OrderForm()
@@ -140,11 +131,6 @@ def ticket_booking(request, id=None):
     person_instance = User.objects.get(profile=request.user.profile)
     form = OrderForm(instance=person_instance)
     return render(request, 'ticket_booking.html', {'form': form})
-
-    # filters = FilterTickets(request.GET, queryset=queryset)
-    #
-    # context = {'filters': filters}
-    # return render(request, 'ticket_search.html', {"tickets": queryset, "form": form})
 
 
 def load_airports(request):
@@ -160,10 +146,14 @@ def booked_tickets(request):
 
 def delete(request, pk):
     order = Order.objects.get(id=pk)
-    # instance = Ticket.objects.get(id=pk)
+    instance = order.ticket
     if request.method == "POST":
-        # instance.is_available = True
-        # instance.save()
+        instance.is_available = True
+        instance.save()
         order.delete()
         return redirect('booked')
     return render(request, 'delete_order.html', {'item': order})
+# заказ - копировать объект copy или новый инстанс ордера - поля - проверки при создании заказа или в процессе,
+# копия объекта привязывается к юзеру
+
+
