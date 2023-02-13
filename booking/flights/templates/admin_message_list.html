@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div align="center">
+{% for message in message_list %}
+    <div>
+   <p class="paragraph"><i class="fa-regular fa-paper-plane"></i> <a href="{% url 'chat' message.sender_id %}">Go to chat with</a>
+    {{ message.sender_id__first_name }}</p>
+    </div>
+{% endfor %}
+</div>
+
+{% endblock %}

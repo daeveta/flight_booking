@@ -9,7 +9,6 @@ from PIL import Image
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     image = models.ImageField(upload_to='profile_pics/', default='profile_pics/default.jpg')
-    phone = models.CharField(default=None, max_length=50, null=True)
     birthday = models.DateField(default=None, name='birthday', null=True)
 
     def __str__(self):
@@ -42,24 +41,44 @@ class Airport(models.Model):
         return f"{self.title}"
 
 
-class Ticket(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    departure_city = models.ForeignKey(City, on_delete=models.CASCADE, related_name='departure', blank=True)
-    departure_airport = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name='departure_airport', blank=True)
-    destination_city = models.ForeignKey(City, on_delete=models.CASCADE, related_name='destination', blank=True)
-    destination_airport = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name='destination_airport', blank=True)
+class Flight(models.Model):
+    departure_city = models.ForeignKey(City, on_delete=models.CASCADE, related_name='departure_city', blank=True, null=True)
+    departure_airport = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name='departure_air',
+                                          blank=True, null=True)
+    destination_city = models.ForeignKey(City, on_delete=models.CASCADE, related_name='destination_city', blank=True, null=True)
+    destination_airport = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name='destination_air',
+                                            blank=True, null=True)
     seats_count = models.IntegerField(blank=True, default=None)
     departure_date = models.DateField(blank=True, null=True, default=None)
     departure_time = models.TimeField(blank=True, null=True, default=None)
     arrival_date = models.DateField(blank=True, null=True, default=None)
     arrival_time = models.TimeField(blank=True, null=True, default=None)
-    # __gt = self.request.GET['dep_date'],
-    # __lt = self.request.GET['dep_date']
     price = models.DecimalField(max_digits=4, decimal_places=0, blank=True, default=None)
     is_available = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.departure_city} ({self.departure_airport}) — {self.destination_city} ({self.destination_airport}): {self.departure_date}"
+
+    def update_seats(self):
+        if self.seats_count == 0:
+            self.is_available = False
+        else:
+            self.is_available = True
+        self.save()
+
+
+class Ticket(models.Model):
+    flight = models.ForeignKey(Flight, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    first_name = models.CharField(max_length=50, null=True)
+    last_name = models.CharField(max_length=50, null=True)
+    email = models.EmailField(max_length=50, null=True)
+    phone = models.CharField(default=None, max_length=50, null=True)
+    birthday = models.DateField(default=None, name='birthday', null=True)
+
+
+    def __str__(self):
+        return f"{self.flight}"
 
 
 class Order(models.Model):
@@ -68,8 +87,6 @@ class Order(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField(max_length=50)
-    phone = models.CharField(default=None, max_length=50, null=True)
-    birthday = models.DateField(default=None, name='birthday', null=True)
     created = models.DateTimeField(auto_now_add=True)
     paid = models.BooleanField(default=False)
 
@@ -84,3 +101,11 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return '{}'.format(self.id)
+
+
+class Message(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name="sender")
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name="recipient")
+    text = models.CharField(max_length=240)
+    created_at = models.DateTimeField(auto_now_add=True)
+

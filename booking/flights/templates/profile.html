@@ -2,6 +2,15 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% block content %}
+<div>
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert {{ message.tags }} m-2" id="msg" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+</div>
     <div class="profile-image" align="center">
     {% if user.profile.image %}
         <img src="{{ MEDIA_URL }} {{ user.profile.image.url }}" class="rounded-circle" style="object-fit: cover" width="200" height="200">
@@ -17,8 +26,10 @@
     <div class="content-section" align="center">
         <h5>Options</h5>
         <div class="list-group" align="center" style="width: 400px">
-        <a href="{% url 'edit-profile' %}" class="list-group-item list-group-item-action" style="color:green">Edit profile info</a>
-        <a href="{% url 'booked' %}" class="list-group-item list-group-item-action" style="color:green">Booked tickets</a></li>
+            <a href="{% url 'edit-profile' %}" class="list-group-item list-group-item-action" style="color: #0d5528">Edit profile info</a>
+            <a href="{% url 'booked' %}" class="list-group-item list-group-item-action" style="color: #0d5528">Booked tickets</a>
+            <a href="{% url 'messages' %}" class="list-group-item list-group-item-action" style="color: #0d5528">Messages for FLIGHTS</a>
         </div>
     </div>
+
 {% endblock %}

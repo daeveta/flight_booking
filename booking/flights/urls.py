@@ -16,4 +16,7 @@ urlpatterns = [
     path('edit/', views.edit_profile, name='edit-profile'),
     path('booked-tickets/', views.booked_tickets, name='booked'),
     path('delete_order/<str:pk>', views.delete, name='delete'),
+    path('messages/', views.message_for_admin, name='messages'),
+    path('messages-list/', views.admin_message_list, name='admin-list'),
+    path('chat/<int:id>', views.chat, name='chat')
 ]

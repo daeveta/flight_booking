@@ -41,14 +41,16 @@
         </tr>
     {% for ticket in queryset %}
         <tr>
-            <td>{{ ticket.departure_city }}</td>
-            <td>{{ ticket.departure_airport }}</td>
-            <td>{{ ticket.destination_city }}</td>
-            <td>{{ ticket.destination_airport }}</td>
-            <td>{{ ticket.departure_date }}</td>
-            <td>{{ ticket.arrival_date }}</td>
-            <td>{{ ticket.price }}$</td>
-            <td><a href="/booking/{{ticket.id}}" class="btn btn-primary" style="background-color: white; --bs-btn-border-color: #0d5528; --bs-btn-color: #0d5528; --bs-btn-hover-border-color:green; border-radius: 50px; width: 60px; height: 30px; font-size: 9px; display: inline-flex;  justify-content: center; align-items: center;"><i class="fa-solid fa-plane" style="color: #0d5528"></i>Buy</a></td>
+            <td style="font-weight: bold; font-size: 20px">{{ ticket.departure_city }}</td>
+            <td style="position: relative; width: 200px">{{ ticket.departure_airport }}</td>
+            <td style="font-weight: bold; font-size: 20px">{{ ticket.destination_city }}</td>
+            <td style="position: relative; width: 200px">{{ ticket.destination_airport }}</td>
+            <td><p>{{ ticket.departure_date|date:"d F"  }}</p>
+                <p style="font-weight: bold">{{ ticket.departure_time|date:'H:i' }}</p></td>
+            <td><p>{{ ticket.arrival_date|date:"d F" }}</p>
+                <p style="font-weight: bold">{{ ticket.arrival_time|date:'H:i' }}</p></td>
+            <td style="font-weight: bold; font-size: 20px">{{ ticket.price }}$</td>
+            <td style="position: relative; align-items: center; margin-left: 10px; margin-top: 10px"><a href="/booking/{{ticket.id}}" class="btn btn-primary" style="background-color: white; --bs-btn-border-color: #0d5528; --bs-btn-color: #0d5528; --bs-btn-hover-border-color:green; border-radius: 50px; width: 60px; height: 30px; font-size: 12px; display: flex;  justify-content: center; align-items: center;"><i class="fa-solid fa-plane" style="color: #0d5528"></i>Buy</a></td>
         </tr>
 </div>
     {% endfor %}

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+from django.contrib.messages import constants as messages
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -71,6 +72,14 @@ TEMPLATES = [
     },
 ]
 
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert-info',
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
+}
+
 WSGI_APPLICATION = 'booking.wsgi.application'
 
 
@@ -80,7 +89,7 @@ WSGI_APPLICATION = 'booking.wsgi.application'
 DATABASES = {
     'default': {
          'ENGINE': 'django.db.backends.mysql',
-         'NAME': 'flight_booking',
+         'NAME': 'flights_app',
          'USER': 'root',
          'PASSWORD': '1234',
          'HOST': 'localhost',
@@ -118,7 +127,9 @@ USE_I18N = True
 
 USE_TZ = True
 
-DATE_INPUT_FORMATS = ['%m/%d/%Y']
+DATETIME_INPUT_FORMATS = ['%d/%m/%Y %H:%M']
+DATE_FORMAT = ['%d.%m.%Y']
+TIME_FORMAT = ('%H:%M',)
 
 
 

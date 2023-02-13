@@ -2,9 +2,9 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Ticket, Order, Airport, Profile
+from .models import Ticket, Order, Airport, Profile, Flight, Message
 from django.forms import Form, PasswordInput, CharField, ModelForm
-
+from django.core.validators import RegexValidator
 
 
 class LoginForm(Form):
@@ -21,12 +21,10 @@ class UserForm(UserCreationForm):
 
 class SearchForm(forms.ModelForm):
     class Meta:
-        model = Ticket
+        model = Flight
         fields = ['departure_city', 'departure_airport', 'destination_city', 'destination_airport', 'departure_date',
                   'arrival_date', 'price']
         widgets = {
-            # "departure_city": forms.Select(attrs={'class': 'form-select'}),
-            # "departure_airport": forms.Select(attrs={'class': 'form-select'}),
             "departure_date": forms.DateInput(attrs={'type': 'date'}, format=settings.DATE_INPUT_FORMATS),
             "arrival_date": forms.DateInput(attrs={'type': 'date'}, format=settings.DATE_INPUT_FORMATS),
             "price": forms.NumberInput(attrs={'type': 'range', 'step': '10', 'min': '50', 'max': '700', 'value': '700', 'id': 'range-field'}),
@@ -58,8 +56,8 @@ class SearchForm(forms.ModelForm):
 
 class OrderForm(forms.ModelForm):
     class Meta:
-        model = Order
-        fields = ['first_name', 'last_name', 'email', 'phone', 'birthday']
+        model = Ticket
+        fields = ('first_name', 'last_name', 'email')
         widgets = {
             "birthday": forms.DateInput(attrs={'type': 'date'}, format=settings.DATE_INPUT_FORMATS),
         }
@@ -76,7 +74,19 @@ class UserUpdateForm(forms.ModelForm):
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ('image', 'phone', 'birthday',)
+        fields = ('image', 'birthday',)
         widgets = {
             "birthday": forms.DateInput(attrs={'type': 'date'}),
+        }
+
+
+class MessageForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ['text']
+        widgets = {
+            "text": forms.Textarea(attrs={'width': '400px', 'cols': '40', 'rows': '4'})
+        }
+        labels = {
+            'text': 'Message:',
         }

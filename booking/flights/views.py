@@ -1,17 +1,19 @@
 import json
+from datetime import datetime, date
 
+from django.db.models import Count, Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from djoser.conf import User
 
-from .forms import UserForm, LoginForm, SearchForm, OrderForm, UserUpdateForm, ProfileUpdateForm
+from .forms import UserForm, LoginForm, SearchForm, OrderForm, UserUpdateForm, ProfileUpdateForm, MessageForm
 # from .filters import FilterTickets
 from django.contrib import messages
 # from cart.cart import Cart
 
-from .models import Ticket, Profile, OrderItem, Order, Airport, City
+from .models import Ticket, Profile, OrderItem, Order, Airport, City, Flight, Message
 
 
 def index(request):
@@ -29,7 +31,7 @@ def sign_up(request):
         if form.is_valid():
             form.save()
             user = form.cleaned_data.get('first_name')
-            messages.success(request, 'Congratulations!' + user)
+            messages.success(request, 'Your profile is created,' + ' ' + user)
             return redirect('login')
     else:
         form = UserForm()
@@ -65,7 +67,7 @@ def log_out(request):
 
 @login_required
 def profile_page(request):
-    return render(request, 'profile.html') # сигналы для того чтобы профиль создавался автоматически
+    return render(request, 'profile.html')  # сигналы для того чтобы профиль создавался автоматически
 
 
 @login_required(login_url='/log-in')
@@ -76,7 +78,7 @@ def edit_profile(request):
         if u_form.is_valid() and p_form.is_valid():
             u_form.save()
             p_form.save()
-            messages.success(request, f'Ваш профиль успешно обновлен.')
+            messages.success(request, 'Your profile is updated successfully!')
             return redirect('profile')
     else:
         u_form = UserUpdateForm(instance=request.user)
@@ -91,7 +93,7 @@ def edit_profile(request):
 
 
 def ticket_search(request):
-    queryset = Ticket.objects.filter(is_available=True)
+    queryset = Flight.objects.filter(is_available=True).filter(departure_date__gte=date.today())
     form = SearchForm(request.GET)
     if form.is_valid():
         if form.cleaned_data['departure_city']:
@@ -102,29 +104,37 @@ def ticket_search(request):
             queryset = queryset.filter(destination_city=form.cleaned_data['destination_city'])
         if form.cleaned_data['destination_airport']:
             queryset = queryset.filter(destination_airport=form.cleaned_data['destination_airport'])
-        if form.cleaned_data['departure_date']:
-            queryset = queryset.filter(departure_date=form.cleaned_data['departure_date'])
-        if form.cleaned_data['arrival_date']:
-            queryset = queryset.filter(arrival_date=form.cleaned_data['arrival_date'])
+        for flight in queryset:
+            if flight.departure_date > date.today() or flight.departure_date == date.today():
+                if form.cleaned_data['departure_date']:
+                    queryset = queryset.filter(departure_date=form.cleaned_data['departure_date'])
+        for flight in queryset:
+            if flight.arrival_date > flight.departure_date or flight.arrival_date == flight.departure_date:
+                if form.cleaned_data['arrival_date']:
+                    queryset = queryset.filter(arrival_date=form.cleaned_data['arrival_date'])
         if form.cleaned_data['price'] or form.cleaned_data['price'] == 0:
             queryset = queryset.filter(price__lte=form.cleaned_data['price'])
     return render(request, 'ticket_search.html', {"queryset": queryset, "form": form})
 
 
 @login_required(login_url='/log-in')
-def ticket_booking(request, id=None):
+def ticket_booking(request, id):
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
-            order = form.save(commit=False)
-            order.user = request.user
-            ticket = Ticket.objects.get(pk=id)
-            order.ticket = ticket
-            order.save()
+            ticket = form.save(commit=False)
+            ticket.flight = Flight.objects.get(pk=id)
+            if ticket.flight.seats_count > 0:
+                ticket.flight.seats_count -= 1
+                ticket.flight.update_seats()
+            else:
+                messages.error(request, 'Error! There is no seats on this flight')
+                ticket.flight.update_seats()
+                return redirect('search')
             ticket.user = request.user
-            ticket.is_available = False
             ticket.save()
-            return render(request, 'ticket_booked.html', {"order": order})
+            ticket.flight.save()
+            return render(request, 'ticket_booked.html', )
         else:
             form = OrderForm()
             return render(request, 'ticket_booking.html', {'form': form})
@@ -140,20 +150,57 @@ def load_airports(request):
 
 
 def booked_tickets(request):
-    orders = Order.objects.all().filter(user=request.user)
-    return render(request, 'booked_tickets.html', {"orders": orders})
+    ticket = Ticket.objects.all().filter(user=request.user)
+    return render(request, 'booked_tickets.html', {"ticket": ticket})
 
 
 def delete(request, pk):
-    order = Order.objects.get(id=pk)
-    instance = order.ticket
+    ticket = Ticket.objects.get(id=pk)
+    ticket_flight = ticket.flight
     if request.method == "POST":
-        instance.is_available = True
-        instance.save()
-        order.delete()
+        ticket.delete()
+        ticket_flight.seats_count += 1
+        ticket_flight.update_seats()
         return redirect('booked')
-    return render(request, 'delete_order.html', {'item': order})
+    return render(request, 'delete_order.html', {'item': ticket})
+
+
 # заказ - копировать объект copy или новый инстанс ордера - поля - проверки при создании заказа или в процессе,
 # копия объекта привязывается к юзеру
 
 
+def message_for_admin(request):
+    sender = request.user
+    recipient = User.objects.get(id=1)
+    message_list = Message.objects.filter(Q(sender=sender) | Q(recipient=sender))
+    if request.method == "POST":
+        form = MessageForm(request.POST)
+        message = form.save(commit=False)
+        message.sender = sender
+        message.recipient = recipient
+        message.save()
+    else:
+        form = MessageForm()
+    return render(request, 'message_for_admin.html',
+                  {"message_list": message_list, "form": form, "sender": sender, "recipient": recipient})
+
+
+def admin_message_list(request):
+    message_list = Message.objects.values('sender_id__first_name', 'sender_id').annotate(recipient_messages=Count('sender'))
+    return render(request, 'admin_message_list.html', {"message_list": message_list})
+
+
+def chat(request, id):
+    sender = request.user
+    recipient = User.objects.get(id=id)
+    message_list = Message.objects.filter(Q(sender=recipient) | Q(recipient=recipient))
+    if request.method == "POST":
+        # import pdb; pdb.set_trace()
+        form = MessageForm(request.POST)
+        message = form.save(commit=False)
+        message.sender = sender
+        message.recipient = recipient
+        message.save()
+    else:
+        form = MessageForm()
+    return render(request, 'message_for_admin.html', {"message_list": message_list, "form": form})

@@ -1,12 +1,27 @@
 {% extends 'base.html' %}
 {% block content %}
-{% if orders %}
-{% for order in orders %}
- <div class="alert alert-secondary" align="center" style="background: white">
-   {{ order.ticket }}
-     <a class="btn btn-primary" style="background-color: #0d5528; --bs-btn-border-color: white; --bs-btn-hover-border-color:green; border-radius: 50px" href="{% url 'delete' order.id %}">Delete</a>
+<div>
+    {% if ticket %}
+{% for t in ticket %}
+ <div class="alert alert-secondary" align="center" style="background: white; width: 600px">
+   <div class="box" style="display: inline-block; text-align: left; margin-right: 90px">
+       <div style="display: flex; font-size: 30px">{{ t.flight.departure_city }}</div>
+       <div style="display: flex; font-size: 20px; align-text: center">{{ t.flight.departure_time|date:'H:i'}}</div>
+   </div>
+      <div class="box" style="display: inline-block; padding-right: 50px">
+          <p style="position: relative; right: 25px">
+              <img src="/static/flight/arrow.png" width="80" height="50px" align="right"/>
+          </p>
+          </div>
+     <div class="box" style="display: inline-block; margin-left: 15px; right: 70px">
+         <div align="right" style="display: flex;font-size: 30px">{{ t.flight.destination_city }}</div>
+       <div style="display: flex; font-size: 20px">{{ t.flight.arrival_time|date:'H:i' }}</div>
+     </div>
+     <div>
+     <a class="btn btn-primary" style="align-items: center; background-color: #0d5528; --bs-btn-border-color: white; --bs-btn-hover-border-color:green; border-radius: 50px" href="{% url 'delete' t.id %}">Delete</a>
+    </div>
  </div>
-{% endfor %}
+    {% endfor %}</div>
 {% else %}
  <p align="center" style="font-size: 50px; padding: 10px; margin: 10px">Sorry :(</p>
 <p align="center" style="font-size: 25px">There is no tickets yet!</p>
