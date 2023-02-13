@@ -3,12 +3,12 @@
 <div>
     {% if ticket %}
 {% for t in ticket %}
- <div class="alert alert-secondary" align="center" style="background: white; width: 600px">
+ <div class="alert alert-secondary" align="center" style="background: white; width: 600px; padding: 20px; left: 25%">
    <div class="box" style="display: inline-block; text-align: left; margin-right: 90px">
        <div style="display: flex; font-size: 30px">{{ t.flight.departure_city }}</div>
        <div style="display: flex; font-size: 20px; align-text: center">{{ t.flight.departure_time|date:'H:i'}}</div>
    </div>
-      <div class="box" style="display: inline-block; padding-right: 50px">
+      <div class="box" style="display: inline-block;">
           <p style="position: relative; right: 25px">
               <img src="/static/flight/arrow.png" width="80" height="50px" align="right"/>
           </p>

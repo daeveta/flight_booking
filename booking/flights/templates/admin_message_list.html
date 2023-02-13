@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div align="center">
+<h2 align="center" style="color: #0d5528; font-weight: bold; padding: 20px">Message list</h2>
 {% for message in message_list %}
-    <div>
-   <p class="paragraph"><i class="fa-regular fa-paper-plane"></i> <a href="{% url 'chat' message.sender_id %}">Go to chat with</a>
-    {{ message.sender_id__first_name }}</p>
+ <div class="content-section" align="center">
+        <div class="list-group" align="center" style="display: inline-block; margin: 5px">
+            <a href="{% url 'chat' message.sender_id %}" class="list-group-item list-group-item-action"><i class="fa-regular fa-paper-plane" style="color: #0d5528"></i> {{ message.sender_id__first_name }}</a>
+        </div>
     </div>
 {% endfor %}
-</div>
 
 {% endblock %}

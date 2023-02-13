@@ -1,8 +1,11 @@
 {% extends 'base.html' %}
-{% block title %}Thank you{% endblock %}
-
+{% block title %}Ticket{% endblock %}
 {% block content %}
+<div style="padding: 10px; margin: 30px">
     <h1 align="center">Thank you</h1>
-    <p align="center">Your order has been successfully completed. Your order number is
-        <strong>{{ order.id }}</strong>.</p>
+    <p align="center">Your order has been successfully completed!</p>
+</div>
+<div class="button" align="center">
+    <a href="/" type="button" class="btn btn-primary" style="background-color: #0d5528; --bs-btn-border-color: white; --bs-btn-hover-border-color:green; border-radius: 50px">Back to Home</a>
+   </div>
 {% endblock %}

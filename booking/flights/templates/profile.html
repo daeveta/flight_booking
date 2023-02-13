@@ -5,7 +5,7 @@
 <div>
 {% if messages %}
     {% for message in messages %}
-        <div class="alert {{ message.tags }} m-2" id="msg" role="alert">
+        <div class="alert {{ message.tags }}" id="msg" role="alert" style="width: 500px; height: 10px; padding: 30px">
             {{ message }}
         </div>
     {% endfor %}
@@ -25,11 +25,16 @@
 
     <div class="content-section" align="center">
         <h5>Options</h5>
+        {% if request.user.is_authenticated and request.user.is_superuser %}
         <div class="list-group" align="center" style="width: 400px">
+            <a href="{% url 'edit-profile' %}" class="list-group-item list-group-item-action" style="color: #0d5528">Edit profile info</a>
+        </div>
+        {% else %}
+         <div class="list-group" align="center" style="width: 400px">
             <a href="{% url 'edit-profile' %}" class="list-group-item list-group-item-action" style="color: #0d5528">Edit profile info</a>
             <a href="{% url 'booked' %}" class="list-group-item list-group-item-action" style="color: #0d5528">Booked tickets</a>
             <a href="{% url 'messages' %}" class="list-group-item list-group-item-action" style="color: #0d5528">Messages for FLIGHTS</a>
         </div>
-    </div>
+        {% endif %}
 
 {% endblock %}

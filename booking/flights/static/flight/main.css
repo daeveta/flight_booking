@@ -91,3 +91,8 @@ h1 {
     font-weight: bold;
 }
 
+.alert {
+    padding: 50px;
+    width: 30%;
+    top: 50%;
+    left: 30%;

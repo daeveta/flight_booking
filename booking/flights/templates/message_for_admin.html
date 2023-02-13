@@ -10,7 +10,7 @@
                         <p>{{ field.label }}</p>
                         {{ field }}
                         {% endfor %}
-                    <p><input type="submit" value="Send"></p>
+                   <p><input type="submit" class="btn btn-outline-success" style="background-color: #0d5528; --bs-btn-color: white; --bs-btn-border-color: white; --bs-btn-hover-border-color:green; border-radius: 50px" value="Send"></p>
                 </form>
             </div>
         </div>
@@ -20,7 +20,9 @@
 <div class="container border" style="background: white; width: 600px; height: 90px; border-radius:10px ">
         <div class="row justify-content-center align-items-center" style="display:inline;">
             <div class="col-5 text-center justify-content-center" style="display:inline; border:1px">
-                <p style="font-size: 20px; display:inline">{{ message.text }} <p align="right" style="font-size:10px">{{ message.created_at }} from: {{ message.sender }}</p></p>
+                <p style="font-size: 20px; display:inline">{{ message.text }}</p>
+                <p align="right" style="font-size:10px">{{ message.created_at|date:"d F, H:i" }}</p>
+                <p align="right" style="font-size:10px;  margin:-10px">from: {{ message.sender }}</p>
             </div>
         </div>
 </div>

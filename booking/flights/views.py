@@ -1,19 +1,16 @@
-import json
-from datetime import datetime, date
+
+from datetime import date
 
 from django.db.models import Count, Q
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from djoser.conf import User
-
 from .forms import UserForm, LoginForm, SearchForm, OrderForm, UserUpdateForm, ProfileUpdateForm, MessageForm
-# from .filters import FilterTickets
 from django.contrib import messages
-# from cart.cart import Cart
 
-from .models import Ticket, Profile, OrderItem, Order, Airport, City, Flight, Message
+
+from .models import Ticket, Profile, Airport, City, Flight, Message
 
 
 def index(request):
@@ -67,7 +64,7 @@ def log_out(request):
 
 @login_required
 def profile_page(request):
-    return render(request, 'profile.html')  # сигналы для того чтобы профиль создавался автоматически
+    return render(request, 'profile.html')
 
 
 @login_required(login_url='/log-in')
@@ -163,10 +160,6 @@ def delete(request, pk):
         ticket_flight.update_seats()
         return redirect('booked')
     return render(request, 'delete_order.html', {'item': ticket})
-
-
-# заказ - копировать объект copy или новый инстанс ордера - поля - проверки при создании заказа или в процессе,
-# копия объекта привязывается к юзеру
 
 
 def message_for_admin(request):
